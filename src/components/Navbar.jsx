@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom';
+import './Navbar.css'; 
 
 const Navbar = ({ theme, toggleTheme }) => {
   return (
@@ -14,12 +15,11 @@ const Navbar = ({ theme, toggleTheme }) => {
       </nav>
       
       {/* Profile Picture */}
-      <div className="profile-container" style={{ textAlign: 'center', margin: '15px 0' }}>
+      <div className="profile-container">
         <img 
           src="/assets/IMG_5630.jpeg" 
           alt="Srivathsava Rebba" 
           className="profile-pic"
-          style={{ width: '120px', height: '120px', borderRadius: '50%', objectFit: 'cover' }}
         />
       </div>
 

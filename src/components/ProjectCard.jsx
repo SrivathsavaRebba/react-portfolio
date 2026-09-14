@@ -14,9 +14,9 @@ const ProjectCard = ({ project }) => {
             style={{ 
                 width: '100%', 
                 maxHeight: '200px', 
-                objectFit: 'contain', /* This prevents the cropping! */
+                objectFit: 'contain', 
                 borderRadius: '4px',
-                backgroundColor: '#f8f9fa' /* Adds a nice backdrop for smaller icons */
+                backgroundColor: '#f8f9fa' 
             }} 
         />
       <h3>{project.title}</h3>
@@ -36,7 +36,7 @@ const ProjectCard = ({ project }) => {
           <p><strong>Tech Stack:</strong> {project.techStack.join(', ')}</p>
           
           {/* Link to the dynamic details page */}
-          <Link to={`/projects/${project.id}`} style={{ display: 'inline-block', marginTop: '10px', color: 'blue' }}>
+          <Link to={`/projects/${project.id}`} >
             Go to Full Project Page →
           </Link>
         </div>

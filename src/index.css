@@ -35,6 +35,36 @@ body.dark form, body.dark article {
   color: #f7fafc;
 }
 
+/* Light Mode Link Style (Default) */
+.project-card a, 
+.project-detail a {
+  color: #0056b3; 
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.project-card a:hover, 
+.project-detail a:hover {
+  color: #003d82; 
+}
+
+/* Dark Mode Link Style Override */
+body.dark .project-card a, 
+body.dark .project-detail a {
+  color: #64b5f6; 
+}
+
+body.dark .project-card a:hover, 
+body.dark .project-detail a:hover {
+  color: #90caf9; 
+}
+
+/* Keep the "View Source Code" button looking like a button, not a text link */
+.project-detail a[target="_blank"] {
+  color: white !important;
+}
+
+
 /* Global */
 *{
 

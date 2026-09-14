@@ -1,19 +1,36 @@
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { projects } from '../data/projects';
 
 const ProjectDetail = () => {
-  // Grab the dynamic :projectId from the URL
   const { projectId } = useParams();
-  
-  // Find the specific project in our data array that matches the ID
-  const project = projects.find(p => p.id === projectId);
+  const [project, setProject] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // If someone types a random ID in the URL that doesn't exist
-  if (!project) {
+  useEffect(() => {
+    fetch(`http://localhost:5001/api/projects/${projectId}`)
+      .then((res) => {
+        if (res.status === 404) throw new Error('Project not found');
+        if (!res.ok) throw new Error('Failed to load project details.');
+        return res.json();
+      })
+      .then((data) => {
+        setProject(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
+      });
+  }, [projectId]);
+
+  if (loading) return <div style={{ textAlign: 'center', marginTop: '50px' }}>Loading project...</div>;
+  
+  if (error) {
     return (
       <section style={{ textAlign: 'center', marginTop: '50px' }}>
-        <h2>Project Not Found</h2>
-        <Link to="/projects">← Back to Projects</Link>
+        <h2>{error}</h2>
+        <Link to="/projects" style={{ color: 'blue', textDecoration: 'underline' }}>← Back to Projects</Link>
       </section>
     );
   }
@@ -24,15 +41,8 @@ const ProjectDetail = () => {
       <img 
         src={project.image} 
         alt={project.title} 
-        style={{ 
-            width: '100%', 
-            maxHeight: '400px', /* Give it a bit more vertical room on the big page */
-            objectFit: 'contain', 
-            borderRadius: '8px', 
-            marginBottom: '20px',
-            backgroundColor: '#f8f9fa'
-        }} 
-        />
+        style={{ width: '100%', maxHeight: '400px', objectFit: 'contain', borderRadius: '8px', marginBottom: '20px', backgroundColor: '#f8f9fa' }} 
+      />
       <p style={{ fontSize: '1.2rem', lineHeight: '1.6' }}>{project.description}</p>
       
       <div style={{ margin: '20px 0' }}>
@@ -49,7 +59,7 @@ const ProjectDetail = () => {
       </a>
       
       <br />
-      <Link to="/projects" style={{ color: 'blue', textDecoration: 'underline' }}>← Back to Projects Gallery</Link>
+      <Link to="/projects" style={{ textDecoration: 'underline' }}>← Back to Projects Gallery</Link>
     </section>
   );
 };
