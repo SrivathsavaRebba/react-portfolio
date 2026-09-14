@@ -1,0 +1,49 @@
+# B1. Health Check
+# Expected: 200 OK with { "status": "ok" }
+curl -X GET http://localhost:5001/
+
+# B2. Serve Project List
+# Expected: 200 OK with full array of projects
+curl -X GET http://localhost:5001/api/projects
+
+# B3. Serve a Single Project (Success)
+# Expected: 200 OK with single project object
+curl -X GET http://localhost:5001/api/projects/1
+
+# B3. Serve a Single Project (Failure - Invalid ID)
+# Expected: 404 Not Found with { "error": "Project not found" }
+curl -X GET http://localhost:5001/api/projects/999
+
+# B4. Handle Contact Form Submissions (Success)
+# Expected: 201 Created with success message and data payload
+curl -X POST http://localhost:5001/api/contact \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Srivathsava Rebba",
+    "email": "srivathsava@nitw.ac.in",
+    "message": "Testing valid form submission."
+  }'
+
+# B4. Handle Contact Form Submissions (Failure - Missing @ in email)
+# Expected: 400 Bad Request with { "error": "Invalid email format" }
+curl -X POST http://localhost:5001/api/contact \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Srivathsava Rebba",
+    "email": "srivathsava.nitw.ac.in",
+    "message": "Testing invalid email failure."
+  }'
+
+# B5. List Submissions for Verification
+# Expected: 200 OK with array containing the successful submission from B4
+curl -X GET http://localhost:5001/api/contact
+
+# B6. Centralized Error Handling & 404s
+# Expected: 404 Not Found with { "error": "Endpoint not found" }
+curl -X GET http://localhost:5001/api/this-does-not-exist
+
+# B7. CORS Configuration Test
+# Expected: Returns CORS headers (Access-Control-Allow-Origin: *)
+curl -I -X OPTIONS http://localhost:5001/api/projects \
+  -H "Origin: http://localhost:5173" \
+  -H "Access-Control-Request-Method: GET"
