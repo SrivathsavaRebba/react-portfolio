@@ -20,6 +20,10 @@ react-portfolio/
 ├── package.json
 └── README.md
 ```
+## Video Walkthrough
+
+A 2-3 minute demonstration of the frontend and backend integration—covering dynamic data fetching, deep linking, server-side form validation, and graceful error handling—can be viewed here:
+
 
 ## Running the Project
 
