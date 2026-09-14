@@ -1,23 +1,222 @@
-# React Personal Portfolio - Assignment 2
+# React Portfolio - Assignment 3
 
-## How to Run This Project
-1. Download or clone this project folder.
-2. Open your terminal and navigate inside the project folder.
-3. Run `npm install` to download all the necessary dependencies.
-4. Run `npm run dev` to start the local development server.
-5. Open the local link provided in your terminal (usually `http://localhost:5173`) in your web browser.
+This project extends my React portfolio from Assignment 2 by adding a Node.js/Express backend. Project data is now loaded through an API, and the contact form sends submissions to the backend.
 
-## Component Structure & State-Lifting Decisions
-I broke the UI down into reusable components to keep the code clean. The main layout is handled in `App.jsx`, where I kept the `<Navbar>` and `<Footer>` outside the `<Routes>` so they stay visible when clicking between pages.
+## Tech Used
 
-* **Lifting State (Theme):** I lifted the dark/light mode `theme` state to the very top in `App.jsx`. This allowed me to apply the theme globally to the body tag, while passing the actual toggle function down to the `<Navbar>` as a prop so the button works.
-* **Prop Drilling:** I demonstrated prop drilling on the Projects page. The `Projects.jsx` page imports the raw data array (Level 1). It passes this array down to `ProjectList.jsx` (Level 2), which then maps through the array and passes the individual project objects down to the `ProjectCard.jsx` component (Level 3) to render the actual HTML.
-* **Independent State:** Every `ProjectCard` has its own `useState` for the "View Details" toggle. This ensures that clicking one card only expands that specific card, not all of them. The `Contact` form also uses its own state to handle controlled inputs and track validation errors.
+React, Vite, React Router, Node.js, Express, CORS and dotenv.
 
-## useEffect Hooks Implemented
-I used two meaningful `useEffect` hooks in this project:
-1. **Saving the Theme (`App.jsx`):** This hook runs every time the `theme` state changes. It saves the user's current choice to `localStorage` and applies the CSS class. This is necessary so that if a user refreshes the page, the site remembers if they were in dark mode.
-2. **Loading Screen (`Home.jsx`):** I used a hook with an empty dependency array `[]` so it only runs once when the Home component mounts. It uses a `setTimeout` to show a "Loading..." message for 1 second before revealing the intro text. I also included a cleanup function (`clearTimeout`) to prevent memory leaks in case the user navigates to another page before the timer finishes.
+## Project Structure
 
-## Academic Integrity Disclosure
-In accordance with the assignment guidelines, I am disclosing that I used an AI tool to help debug a small code snippet in my `Contact.jsx` file. I was originally getting an ESLint error about synchronous state updates because of how I was doing form validation inside a `useEffect`. The AI helped me fix the warning by showing me how to move the validation logic directly into the `handleChange` function instead.
+```text
+react-portfolio/
+├── src/                 # React frontend
+├── server/              # Express backend
+│   ├── data/projects.js
+│   ├── server.js
+│   ├── .env.example
+│   └── package.json
+├── public/
+├── package.json
+└── README.md
+```
+
+## Running the Project
+
+The frontend and backend need to be run separately.
+
+### Backend
+
+```bash
+cd server
+npm install
+npm start
+```
+
+Create a `.env` file inside `server`:
+
+```env
+PORT=5001
+```
+
+The backend runs on `http://localhost:5001`.
+
+### Frontend
+
+From the main project folder:
+
+```bash
+npm install
+npm run dev
+```
+
+The frontend normally runs on `http://localhost:5173`.
+
+### Port Note
+
+I initially tried using port `5000` for the backend on my Mac, but I ran into a port conflict, so I changed it to `5001`. The frontend API requests also use port `5001`.
+
+## API Endpoints
+
+### 1. GET `/`
+
+Checks whether the backend is running.
+
+```bash
+curl http://localhost:5001/
+```
+
+Response:
+
+```json
+{
+  "status": "ok"
+}
+```
+
+### 2. GET `/api/projects`
+
+Returns all projects stored on the backend.
+
+```bash
+curl http://localhost:5001/api/projects
+```
+
+Each project contains the fields used by the frontend: `id`, `title`, `description`, `techStack`, `image` and `link`.
+
+Example:
+
+```json
+[
+  {
+    "id": "1",
+    "title": "Lost and Found Android App",
+    "description": "Designed the frontend interface and user experience layout for a campus-themed mobile application.",
+    "techStack": ["Android Studio", "Java", "XML", "MongoDB", "Spring Boot"],
+    "image": "/assets/isolated-lost-found-label-with-briefcase-phone-wallet-question-mark-symbolizing-missing_626431-2508.jpeg",
+    "link": "https://github.com/SrivathsavaRebba/lost-found"
+  }
+]
+```
+
+There are currently three projects. The endpoint also has a small delay so the loading state on the Projects page can be observed.
+
+### 3. GET `/api/projects/:id`
+
+Returns one project using its ID.
+
+```bash
+curl http://localhost:5001/api/projects/1
+```
+
+A valid ID returns the project with status `200`. An invalid ID returns:
+
+```json
+{
+  "error": "Project not found"
+}
+```
+
+with status `404`.
+
+### 4. POST `/api/contact`
+
+Accepts contact form submissions and validates them on the server.
+
+Example:
+
+```bash
+curl -X POST http://localhost:5001/api/contact \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Srivathsava",
+    "email": "Srivathsava@example.com",
+    "message": "Hello!"
+  }'
+```
+
+Successful response:
+
+```json
+{
+  "message": "Submission saved successfully",
+  "data": {
+    "id": 1789378398353,
+    "name": "Srivathsava",
+    "email": "Srivathsava@example.com",
+    "message": "Hello!"
+  }
+}
+```
+
+Status: `201 Created`
+
+The server checks that `name`, `email` and `message` are present and also checks the email format. Invalid data returns `400 Bad Request`.
+
+Example:
+
+```json
+{
+  "error": "Invalid email format"
+}
+```
+
+### 5. GET `/api/contact`
+
+Returns all contact submissions stored so far.
+
+```bash
+curl http://localhost:5001/api/contact
+```
+
+This endpoint is intentionally open and does not use authentication, as required for assignment verification.
+
+Contact submissions are stored in an **in-memory array**, so they are cleared when the backend is restarted.
+
+### 6. Undefined Routes
+
+Undefined routes return a JSON `404` response.
+
+```bash
+curl http://localhost:5001/api/doesnotexist
+```
+
+Response:
+
+```json
+{
+  "error": "Endpoint not found"
+}
+```
+
+A global Express error handler is also used so server errors return JSON instead of HTML or stack traces.
+
+## Frontend Integration
+
+The React frontend uses `fetch()` and `useEffect()` to communicate with the backend.
+
+- **Projects page:** gets project data from `GET /api/projects` and shows a loading state while fetching.
+- **Project detail page:** gets the project ID using `useParams()` and fetches it from `GET /api/projects/:id`.
+- **Contact page:** sends form data using `POST /api/contact` and shows the success/error response.
+- If the backend is stopped, the Projects page shows an error message instead of remaining blank.
+- A non-existent project ID displays a project-not-found message.
+
+## CORS and Environment
+
+CORS is enabled so the React development server on port `5173` can communicate with the Express server on port `5001`.
+
+`dotenv` is used for environment configuration. The `.env` file should not be committed; `.env.example` is provided as a reference.
+
+## Data Storage
+
+Project data is stored in:
+
+```text
+server/data/projects.js
+```
+
+Contact submissions use an in-memory array. 
+
+## AI Assistance Disclosure
+
+I used an AI coding assistant during development for help with debugging and some implementation issues. I also used it to write a CSS child-combinator selector to fix a link visibility and contrast issue in the application's dark mode. I tested the changes locally after implementing them. 
